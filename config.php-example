@@ -1,7 +1,16 @@
 <?php
 
+// To use a specified database...
 return [
     'database' => 'YOUR_DATABASE_NAME',
     'username' => 'YOUR_DATABASE_USERNAME',
     'password' => 'YOUR_DATABASE_PASSWORD',
+];
+
+// To use environment variables as per the tools in https://github.com/pkp/datasets...
+return [
+    'driver' => getenv('DBTYPE_SYMBOLIC'),
+    'database' => getenv('DBNAME'),
+    'username' => getenv('DBUSERNAME'),
+    'password' => getenv('DBPASSWORD'),
 ];
