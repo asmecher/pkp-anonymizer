@@ -14,3 +14,11 @@ return [
     'username' => getenv('DBUSERNAME'),
     'password' => getenv('DBPASSWORD'),
 ];
+
+// To use command-line supplied configuration...
+if (count($argv) != 4) throw new Exception('Use: ' . $argv[0] . ' username password databasename');
+return [
+    'username' => $argv[1],
+    'password' => $argv[2],
+    'database' => $argv[3],
+];
