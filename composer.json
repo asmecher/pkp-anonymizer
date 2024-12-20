@@ -1,0 +1,6 @@
+{
+    "require": {
+        "illuminate/database": "^11.36",
+        "fakerphp/faker": "^1.24"
+    }
+}
