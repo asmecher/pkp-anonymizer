@@ -8,6 +8,8 @@ This script anonymizes:
 
 Caveats:
 - The generated emails, usernames, and names won't be consistent with each other
+- It's sloooooooooooooow on large databases
+- It needs added code to remove API keys, passwords, and the like
 
 To use:
 

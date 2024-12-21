@@ -22,13 +22,16 @@ class Anonymizer {
 	    ->select('locale')->distinct()->pluck('locale', 'locale')->toArray();
 	$localizedFakers = array_map(fn($locale) => Faker\Factory::create($locale), $locales);
 
-	$usernames = $emails = [];
+	// Ensure no existing emails and usernames are accidentally used
+	$usernames = $this->db->table('users')->pluck('username')->toArray();
+	$emails = $this->db->table('users')->pluck('email')->toArray();
+
         foreach ($this->db->table('users AS u')->select('u.*')->get() as $user) {
 	    // Determine a unique username and email for the user
 	    do {
 		$email = $this->faker->email();
 		$username = strtok($email, '@');
-	    } while (in_array($email, $emails) && in_array($username, $usernames));
+	    } while (in_array($email, $emails) || in_array($username, $usernames));
 	    DB::table('users')->where('user_id', $user->user_id)->update([
 		'email' => $email,
 		'username' => $username,
@@ -57,7 +60,9 @@ class Anonymizer {
 	    ->select('locale')->distinct()->pluck('locale', 'locale')->toArray();
 	$localizedFakers = array_map(fn($locale) => Faker\Factory::create($locale), $locales);
 
-	$emails = [];
+	// Ensure no existing emails are accidentally used
+	$emails = $this->db->table('users')->pluck('email')->toArray();
+
         foreach ($this->db->table('authors AS a')->select('a.*')->get() as $author) {
 	    $emails = [];
 	    do {
