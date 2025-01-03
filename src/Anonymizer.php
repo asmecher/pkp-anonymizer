@@ -51,6 +51,7 @@ class Anonymizer {
 	    DB::table('users')->where('user_id', $user->user_id)->update([
 		'email' => $email,
 		'username' => $username,
+		'password' => sha1($username . $username), // Set the password to the username via grandfathered sha1 encryption
 	    ]);
 	    $usernames[] = $username;
 	    $emails[] = $email;

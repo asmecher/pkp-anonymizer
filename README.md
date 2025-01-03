@@ -2,9 +2,12 @@
 Anonymize the data in an OJS, OMP, or OPS database.
 
 This script anonymizes:
-- User data: usernames, emails, names
+- User data: usernames, emails, names, passwords
 - Author data: emails, names
 - Submission data: titles, abstracts
+- Integrations:
+  - CrossRef username and password
+  - ORCiD API credentials
 
 Caveats:
 - The generated emails, usernames, and names won't be consistent with each other
@@ -19,3 +22,5 @@ To use:
    ```sh
    php anonymizer.php
    ```
+
+After executing, it should be possible to log in to any account using the username as the password. Of course, usernames will be anonymized, so it will be necessary to get them from the database.
