@@ -83,6 +83,26 @@ class Anonymizer {
 		    ->where('locale', $locale)
 		    ->where('setting_name', 'givenName')
 		    ->update(['setting_value' => $localizedFakers[$locale]->firstName()]);
+		DB::table('user_settings')
+		    ->where('user_id', $user->user_id)
+		    ->where('locale', $locale)
+		    ->where('setting_name', 'biography')
+		    ->update(['setting_value' => $localizedFakers[$locale]->paragraph()]);
+		DB::table('user_settings')
+		    ->where('user_id', $user->user_id)
+		    ->where('locale', $locale)
+		    ->where('setting_name', 'preferredPublicName')
+		    ->update(['setting_value' => $localizedFakers[$locale]->name()]);
+		DB::table('user_settings')
+		    ->where('user_id', $user->user_id)
+		    ->where('locale', $locale)
+		    ->where('setting_name', 'signature')
+		    ->update(['setting_value' => $localizedFakers[$locale]->sentence()]);
+		DB::table('user_settings')
+		    ->where('user_id', $user->user_id)
+		    ->where('locale', $locale)
+		    ->where('setting_name', 'orcid')
+		    ->update(['setting_value' => 'http://orcid.org/1234-5678-9012-3456']); // This is just about certainly invalid
 	    }
 	}
 	return $this;
