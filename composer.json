@@ -1,6 +1,7 @@
 {
     "require": {
         "illuminate/database": "^11.36",
-        "fakerphp/faker": "^1.24"
+        "fakerphp/faker": "^1.24",
+        "composer/semver": "^3.4"
     }
 }

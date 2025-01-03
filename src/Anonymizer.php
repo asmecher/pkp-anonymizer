@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Capsule\Manager as DB;
 use Faker\Generator;
+use Composer\Semver\Semver;
 
 class Anonymizer {
     protected DB $db;
@@ -11,9 +12,23 @@ class Anonymizer {
 	'en' => 'en_US',
     ];
 
+    /** @var $version string The version of OJS/OMP/OPS being anonymized */
+    public string $version;
+
     public function __construct (DB $db) {
 	$this->db = $db;
 	$this->faker = Faker\Factory::create();
+
+	$versions = $this->db->table('versions')
+	    ->where('current', 1)
+	    ->whereIn('product', ['ojs2', 'omp', 'ops'])
+	    ->get();
+	if (count($versions) != 1) throw new Exception('Could not determine software version!');
+
+	$version = $versions->first();
+	$this->version = "{$version->major}.{$version->minor}.{$version->revision}.{$version->build}";
+
+	if (!Semver::satisfies($this->version, '^3.3.0.0')) throw new Exception('This database is too old for the anonymizer to process.');
     }
 
     public function users() : void
@@ -131,5 +146,22 @@ class Anonymizer {
 	$this->db->table('plugin_settings')->whereIn('plugin_name', ['crossrefexportplugin', 'crossrefplugin'])
 	    ->where('setting_name', 'testmode')
 	    ->update(['setting_value' => '1']);
+    }
+
+    public function orcid() : void
+    {
+	if (Semver::satisfies($this->version, '^3.5.0.0')) throw new Exception('The anonymizer does not yet support ORCID settings for 3.5.0.');
+
+	// 3.3.0 and 3.4.0: Plugin settings
+	$this->db->table('plugin_settings')->where('plugin_name', 'orcidprofileplugin')
+	    ->where('setting_name', 'orcidClientId')
+	    ->update(['setting_value' => $this->faker->password()]);
+	$this->db->table('plugin_settings')->where('plugin_name', 'orcidprofileplugin')
+	    ->where('setting_name', 'orcidClientSecret')
+	    ->update(['setting_value' => $this->faker->password()]);
+	$this->db->table('plugin_settings')->where('plugin_name', 'orcidprofileplugin')
+	    ->where('setting_name', 'isSandbox')
+	    ->update(['setting_value' => '1']);
+
     }
 }

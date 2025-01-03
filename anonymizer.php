@@ -29,3 +29,4 @@ $anonymizer->users();
 $anonymizer->authors();
 $anonymizer->publications();
 $anonymizer->crossref();
+$anonymizer->orcid();
