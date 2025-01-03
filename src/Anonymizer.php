@@ -149,6 +149,29 @@ class Anonymizer {
 	    ->update(['setting_value' => '1']);
     }
 
+    public function datacite() : void
+    {
+	// 3.3.0 has plugin_name = 'dataciteexportplugin'; 3.4.0 and 3.5.0 use 'dataciteplugin' instead
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['dataciteexportplugin', 'dataciteplugin'])
+	    ->where('setting_name', 'username')
+	    ->update(['setting_value' => $this->faker->username()]);
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['dataciteexportplugin', 'dataciteplugin'])
+	    ->where('setting_name', 'password')
+	    ->update(['setting_value' => $this->faker->password()]);
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['dataciteexportplugin', 'dataciteplugin'])
+	    ->where('setting_name', 'testUsername')
+	    ->update(['setting_value' => $this->faker->username()]);
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['dataciteexportplugin', 'dataciteplugin'])
+	    ->where('setting_name', 'testPassword')
+	    ->update(['setting_value' => $this->faker->password()]);
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['dataciteexportplugin', 'dataciteplugin'])
+	    ->where('setting_name', 'testMode')
+	    ->update(['setting_value' => '1']);
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['dataciteexportplugin', 'dataciteplugin'])
+	    ->where('setting_name', 'testDOIPrefix')
+	    ->update(['setting_value' => '10.1234']);
+    }
+
     public function orcid() : void
     {
 	if (Semver::satisfies($this->version, '^3.5.0.0')) throw new Exception('The anonymizer does not yet support ORCID settings for 3.5.0.');

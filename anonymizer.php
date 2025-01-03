@@ -29,4 +29,7 @@ $anonymizer->users();
 $anonymizer->authors();
 $anonymizer->publications();
 $anonymizer->crossref();
+$anonymizer->datacite();
 $anonymizer->orcid();
+
+echo "Anonymization complete.\nYou may need to flush the OJS/OMP/OPS data cache before some changes will be reflected in the UI.\n";
