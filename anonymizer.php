@@ -37,6 +37,7 @@ $anonymizer->crossref()
     ->lucene()
     ->ithenticate()
     ->doaj()
+    ->portico()
     ->paypal();
 
 echo 'Anonymization complete.

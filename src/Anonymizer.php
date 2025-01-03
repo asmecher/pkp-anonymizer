@@ -258,6 +258,15 @@ class Anonymizer {
 	return $this;
     }
 
+    public function portico() : self
+    {
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['app\plugins\importexport\portico\porticoexportplugin', 'porticoplugin'])
+	    ->where('setting_name', 'endpoints')
+	    ->delete();
+
+	return $this;
+    }
+
     public function paypal() : self
     {
 	// Delete all Paypal settings
