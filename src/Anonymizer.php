@@ -15,6 +15,21 @@ class Anonymizer {
     /** @var $version string The version of OJS/OMP/OPS being anonymized */
     public string $version;
 
+    /** @var $product string The name of the product being anonymized */
+    public string $product;
+
+    /**
+     * Get the name of the context settings table for the product being anonymized.
+     */
+    protected function getContextSettingsTableName() : string
+    {
+	return match($this->product) {
+	    'ojs2' => 'journal_settings',
+	    'omp' => 'press_settings',
+	    'ops' => 'server_settings',
+        };
+    }
+
     public function __construct (DB $db) {
 	$this->db = $db;
 	$this->faker = Faker\Factory::create();
@@ -27,6 +42,7 @@ class Anonymizer {
 
 	$version = $versions->first();
 	$this->version = "{$version->major}.{$version->minor}.{$version->revision}.{$version->build}";
+	$this->product = $version->product;
 
 	if (!Semver::satisfies($this->version, '^3.3.0.0')) throw new Exception('This database is too old for the anonymizer to process.');
     }
@@ -193,8 +209,27 @@ class Anonymizer {
 	$this->db->table('plugin_settings')->where('plugin_name', 'luceneplugin')
 	    ->where('setting_name', 'username')
 	    ->update(['setting_value' => $this->faker->username()]);
-	$this->db->table('plugin_settings')->where('plugin_name', 'lucenelugin')
+	$this->db->table('plugin_settings')->where('plugin_name', 'luceneplugin')
 	    ->where('setting_name', 'password')
+	    ->update(['setting_value' => $this->faker->password()]);
+    }
+
+    public function ithenticate() : void
+    {
+	// v2 iThenticate API: delete the API key and API URLs
+	$this->db->table('plugin_settings')->where('plugin_name', 'plagiarismplugin')
+	    ->whereIn('setting_name', ['ithenticateApiKey', 'ithenticateApiUrl'])
+	    ->delete();
+	$this->db->table($this->getContextSettingsTableName())
+	    ->where('setting_name', 'ithenticateWebhookId')
+	    ->delete();
+
+	// v1 iThenticate API: anonymize the usernames and passwords
+	$this->db->table('plugin_settings')->where('plugin_name', 'plagiarismplugin')
+	    ->where('setting_name', 'ithenticateUser')
+	    ->update(['setting_value' => $this->faker->username()]);
+	$this->db->table('plugin_settings')->where('plugin_name', 'plagiarismplugin')
+	    ->where('setting_name', 'ithenticatePass')
 	    ->update(['setting_value' => $this->faker->password()]);
     }
 }

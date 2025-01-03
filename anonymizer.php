@@ -25,12 +25,19 @@ $db->setAsGlobal();
 
 $anonymizer = new Anonymizer($db);
 
+// Built-in features
 $anonymizer->users();
 $anonymizer->authors();
 $anonymizer->publications();
+
+// Plugins and integrations
 $anonymizer->crossref();
 $anonymizer->datacite();
 $anonymizer->orcid();
 $anonymizer->lucene();
+$anonymizer->ithenticate();
 
-echo "Anonymization complete.\nYou may need to flush the OJS/OMP/OPS data cache before some changes will be reflected in the UI.\n";
+echo 'Anonymization complete.
+You may need to flush the OJS/OMP/OPS data cache before some changes will be reflected in the UI.
+If the configuration file from this installation is also being used, ensure to review and anonymize its contents.
+';
