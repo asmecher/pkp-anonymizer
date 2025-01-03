@@ -197,7 +197,10 @@ class Anonymizer {
 
     public function orcid() : self
     {
-	if (Semver::satisfies($this->version, '^3.5.0.0')) throw new Exception('The anonymizer does not yet support ORCID settings for 3.5.0.');
+	// 3.5.0: Context settings
+	$this->db->table($this->getContextSettingsTableName())
+	    ->whereIn('setting_name', ['orcidClientId', 'orcidClientSecret'])
+	    ->update(['setting_value' => $this->faker->password()]);
 
 	// 3.3.0 and 3.4.0: Plugin settings
 	$this->db->table('plugin_settings')->where('plugin_name', 'orcidprofileplugin')
