@@ -29,6 +29,7 @@ $anonymizer = new Anonymizer($db);
 $anonymizer->users()
     ->authors()
     ->publications()
+    ->reviews()
     ->emailLog();
 
 // Plugins and integrations

@@ -156,15 +156,47 @@ class Anonymizer {
 		DB::table('publication_settings')
 		    ->where('publication_id', $publication->publication_id)
 		    ->where('locale', $locale)
-		    ->where('setting_name', 'title')
+		    ->whereIn('setting_name', ['title', 'cleanTitle'])
 		    ->update(['setting_value' => $localizedFakers[$locale]->sentence()]);
+		DB::table('publication_settings')
+		    ->where('publication_id', $publication->publication_id)
+		    ->where('locale', $locale)
+		    ->where('setting_name', 'subtitle')
+		    ->update(['setting_value' => $localizedFakers[$locale]->words(2)]);
 		DB::table('publication_settings')
 		    ->where('publication_id', $publication->publication_id)
 		    ->where('locale', $locale)
 		    ->where('setting_name', 'abstract')
 		    ->update(['setting_value' => $localizedFakers[$locale]->paragraph()]);
+		DB::table('publication_settings')
+		    ->where('publication_id', $publication->publication_id)
+		    ->where('locale', $locale)
+		    ->where('setting_name', 'citationsRaw')
+		    ->update(['setting_value' => $localizedFakers[$locale]->paragraph()]);
 	    }
 	}
+	return $this;
+    }
+
+    public function reviews() : self
+    {
+	DB::table('review_form_responses')->update(['response_value' => null]);
+	foreach (DB::table('review_form_responses')->where('response_type', 'string')->get() as $reviewFormResponse) {
+	    DB::table('review_form_responses')->where('review_form_element_id', $reviewFormResponse->review_form_element_id)
+		->where('review_id', $reviewFormResponse->review_id)
+		->where('response_type', 'string')
+		->update(['response_value' => $this->faker->sentence()]);
+	}
+
+	foreach (DB::table('submission_comments')->get() as $comment) {
+	    DB::table('submission_comments')
+		->where('comment_id', $comment->comment_id)
+		->update([
+		    'comment_title' => $this->faker->sentence(),
+		    'comments' => $this->faker->paragraph(),
+		]);
+	}
+
 	return $this;
     }
 
