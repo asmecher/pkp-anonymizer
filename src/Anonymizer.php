@@ -16,7 +16,8 @@ class Anonymizer {
 	$this->faker = Faker\Factory::create();
     }
 
-    public function users() {
+    public function users() : void
+    {
 	$locales = $this->db->table('user_settings')
 	    ->where('locale', '<>', '')
 	    ->select('locale')->distinct()->pluck('locale', 'locale')->toArray();
@@ -54,7 +55,8 @@ class Anonymizer {
 	}
     }
 
-    public function authors() {
+    public function authors() : void
+    {
 	$locales = $this->db->table('author_settings')
 	    ->where('locale', '<>', '')
 	    ->select('locale')->distinct()->pluck('locale', 'locale')->toArray();
@@ -88,7 +90,8 @@ class Anonymizer {
 	}
     }
 
-    public function publications() {
+    public function publications() : void
+    {
 	$locales = $this->db->table('author_settings')
 	    ->where('locale', '<>', '')
 	    ->select('locale')->distinct()->pluck('locale', 'locale')->toArray();
@@ -108,5 +111,25 @@ class Anonymizer {
 		    ->update(['setting_value' => $localizedFakers[$locale]->paragraph()]);
 	    }
 	}
+    }
+
+    public function crossref() : void
+    {
+	// 3.3.0 has plugin_name = 'crossrefexportplugin'; 3.4.0 and 3.5.0 use 'crossrefplugin' instead
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['crossrefexportplugin', 'crossrefplugin'])
+	    ->where('setting_name', 'depositorEmail')
+	    ->update(['setting_value' => $this->faker->email()]);
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['crossrefexportplugin', 'crossrefplugin'])
+	    ->where('setting_name', 'depositorName')
+	    ->update(['setting_value' => $this->faker->name()]);
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['crossrefexportplugin', 'crossrefplugin'])
+	    ->where('setting_name', 'password')
+	    ->update(['setting_value' => $this->faker->password()]);
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['crossrefexportplugin', 'crossrefplugin'])
+	    ->where('setting_name', 'username')
+	    ->update(['setting_value' => $this->faker->username()]);
+	$this->db->table('plugin_settings')->whereIn('plugin_name', ['crossrefexportplugin', 'crossrefplugin'])
+	    ->where('setting_name', 'testmode')
+	    ->update(['setting_value' => '1']);
     }
 }

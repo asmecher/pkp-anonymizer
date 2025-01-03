@@ -28,3 +28,4 @@ $anonymizer = new Anonymizer($db);
 $anonymizer->users();
 $anonymizer->authors();
 $anonymizer->publications();
+$anonymizer->crossref();
