@@ -186,6 +186,15 @@ class Anonymizer {
 	$this->db->table('plugin_settings')->where('plugin_name', 'orcidprofileplugin')
 	    ->where('setting_name', 'isSandbox')
 	    ->update(['setting_value' => '1']);
+    }
 
+    public function lucene() : void
+    {
+	$this->db->table('plugin_settings')->where('plugin_name', 'luceneplugin')
+	    ->where('setting_name', 'username')
+	    ->update(['setting_value' => $this->faker->username()]);
+	$this->db->table('plugin_settings')->where('plugin_name', 'lucenelugin')
+	    ->where('setting_name', 'password')
+	    ->update(['setting_value' => $this->faker->password()]);
     }
 }
