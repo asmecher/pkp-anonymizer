@@ -148,6 +148,24 @@ class Anonymizer {
 	return $this;
     }
 
+    public function emailLog() : self
+    {
+	foreach (DB::table('email_log')->select('*')->get() as $logEntry) {
+	    DB::table('email_log')
+		->where('log_id', $logEntry->log_id)
+		->update([
+		    'from_address' => $this->faker->email(),
+		    'recipients' => '"' . $this->faker->name() . '" <' . $this->faker->email() . '>',
+		    'cc_recipients' => '',
+		    'bcc_recipients' => '',
+		    'subject' => $this->faker->sentence(),
+		    'body' => $this->faker->paragraph(),
+		]);
+	}
+
+	return $this;
+    }
+
     public function crossref() : self
     {
 	// 3.3.0 has plugin_name = 'crossrefexportplugin'; 3.4.0 and 3.5.0 use 'crossrefplugin' instead

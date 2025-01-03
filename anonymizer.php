@@ -26,9 +26,10 @@ $db->setAsGlobal();
 $anonymizer = new Anonymizer($db);
 
 // Built-in features
-/*$anonymizer->users()
+$anonymizer->users()
     ->authors()
-    ->publications();*/
+    ->publications()
+    ->emailLog();
 
 // Plugins and integrations
 $anonymizer->crossref()
