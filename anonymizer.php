@@ -26,16 +26,18 @@ $db->setAsGlobal();
 $anonymizer = new Anonymizer($db);
 
 // Built-in features
-$anonymizer->users();
-$anonymizer->authors();
-$anonymizer->publications();
+$anonymizer->users()
+    ->authors()
+    ->publications();
 
 // Plugins and integrations
-$anonymizer->crossref();
-$anonymizer->datacite();
-$anonymizer->orcid();
-$anonymizer->lucene();
-$anonymizer->ithenticate();
+$anonymizer->crossref()
+    ->datacite()
+    ->orcid()
+    ->lucene()
+    ->ithenticate()
+    ->doaj()
+    ->paypal();
 
 echo 'Anonymization complete.
 You may need to flush the OJS/OMP/OPS data cache before some changes will be reflected in the UI.

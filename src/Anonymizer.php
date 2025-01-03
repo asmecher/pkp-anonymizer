@@ -47,7 +47,7 @@ class Anonymizer {
 	if (!Semver::satisfies($this->version, '^3.3.0.0')) throw new Exception('This database is too old for the anonymizer to process.');
     }
 
-    public function users() : void
+    public function users() : self
     {
 	$locales = $this->db->table('user_settings')
 	    ->where('locale', '<>', '')
@@ -85,9 +85,10 @@ class Anonymizer {
 		    ->update(['setting_value' => $localizedFakers[$locale]->firstName()]);
 	    }
 	}
+	return $this;
     }
 
-    public function authors() : void
+    public function authors() : self
     {
 	$locales = $this->db->table('author_settings')
 	    ->where('locale', '<>', '')
@@ -120,9 +121,10 @@ class Anonymizer {
 		    ->update(['setting_value' => $localizedFakers[$locale]->firstName()]);
 	    }
 	}
+	return $this;
     }
 
-    public function publications() : void
+    public function publications() : self
     {
 	$locales = $this->db->table('author_settings')
 	    ->where('locale', '<>', '')
@@ -143,9 +145,10 @@ class Anonymizer {
 		    ->update(['setting_value' => $localizedFakers[$locale]->paragraph()]);
 	    }
 	}
+	return $this;
     }
 
-    public function crossref() : void
+    public function crossref() : self
     {
 	// 3.3.0 has plugin_name = 'crossrefexportplugin'; 3.4.0 and 3.5.0 use 'crossrefplugin' instead
 	$this->db->table('plugin_settings')->whereIn('plugin_name', ['crossrefexportplugin', 'crossrefplugin'])
@@ -163,9 +166,11 @@ class Anonymizer {
 	$this->db->table('plugin_settings')->whereIn('plugin_name', ['crossrefexportplugin', 'crossrefplugin'])
 	    ->where('setting_name', 'testmode')
 	    ->update(['setting_value' => '1']);
+
+	return $this;
     }
 
-    public function datacite() : void
+    public function datacite() : self
     {
 	// 3.3.0 has plugin_name = 'dataciteexportplugin'; 3.4.0 and 3.5.0 use 'dataciteplugin' instead
 	$this->db->table('plugin_settings')->whereIn('plugin_name', ['dataciteexportplugin', 'dataciteplugin'])
@@ -186,9 +191,11 @@ class Anonymizer {
 	$this->db->table('plugin_settings')->whereIn('plugin_name', ['dataciteexportplugin', 'dataciteplugin'])
 	    ->where('setting_name', 'testDOIPrefix')
 	    ->update(['setting_value' => '10.1234']);
+
+	return $this;
     }
 
-    public function orcid() : void
+    public function orcid() : self
     {
 	if (Semver::satisfies($this->version, '^3.5.0.0')) throw new Exception('The anonymizer does not yet support ORCID settings for 3.5.0.');
 
@@ -202,9 +209,11 @@ class Anonymizer {
 	$this->db->table('plugin_settings')->where('plugin_name', 'orcidprofileplugin')
 	    ->where('setting_name', 'isSandbox')
 	    ->update(['setting_value' => '1']);
+
+	return $this;
     }
 
-    public function lucene() : void
+    public function lucene() : self
     {
 	$this->db->table('plugin_settings')->where('plugin_name', 'luceneplugin')
 	    ->where('setting_name', 'username')
@@ -212,9 +221,11 @@ class Anonymizer {
 	$this->db->table('plugin_settings')->where('plugin_name', 'luceneplugin')
 	    ->where('setting_name', 'password')
 	    ->update(['setting_value' => $this->faker->password()]);
+
+	return $this;
     }
 
-    public function ithenticate() : void
+    public function ithenticate() : self
     {
 	// v2 iThenticate API: delete the API key and API URLs
 	$this->db->table('plugin_settings')->where('plugin_name', 'plagiarismplugin')
@@ -231,5 +242,28 @@ class Anonymizer {
 	$this->db->table('plugin_settings')->where('plugin_name', 'plagiarismplugin')
 	    ->where('setting_name', 'ithenticatePass')
 	    ->update(['setting_value' => $this->faker->password()]);
+
+	return $this;
+    }
+
+    public function doaj() : self
+    {
+	$this->db->table('plugin_settings')->where('plugin_name', 'doajexportplugin')
+	    ->where('setting_name', 'apiKey')
+	    ->update(['setting_value' => $this->faker->password()]);
+	$this->db->table('plugin_settings')->where('plugin_name', 'doajexportplugin')
+	    ->where('setting_name', 'testMode')
+	    ->update(['setting_value' => '1']);
+
+	return $this;
+    }
+
+    public function paypal() : self
+    {
+	// Delete all Paypal settings
+	$this->db->table('plugin_settings')->where('plugin_name', 'paypalpayment')
+            ->delete();
+
+	return $this;
     }
 }
