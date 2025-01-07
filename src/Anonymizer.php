@@ -202,18 +202,20 @@ class Anonymizer {
 
     public function emailLog() : self
     {
-	foreach (DB::table('email_log')->select('*')->get() as $logEntry) {
-	    DB::table('email_log')
-		->where('log_id', $logEntry->log_id)
-		->update([
-		    'from_address' => $this->faker->email(),
-		    'recipients' => '"' . $this->faker->name() . '" <' . $this->faker->email() . '>',
-		    'cc_recipients' => '',
-		    'bcc_recipients' => '',
-		    'subject' => $this->faker->sentence(),
-		    'body' => $this->faker->paragraph(),
-		]);
-	}
+	DB::table('email_log')->select('*')->orderBy('log_id')->chunk(1000, function($logEntries) {
+	    foreach ($logEntries as $logEntry) {
+		DB::table('email_log')
+		    ->where('log_id', $logEntry->log_id)
+		    ->update([
+			'from_address' => $this->faker->email(),
+			'recipients' => '"' . $this->faker->name() . '" <' . $this->faker->email() . '>',
+			'cc_recipients' => '',
+			'bcc_recipients' => '',
+			'subject' => $this->faker->sentence(),
+			'body' => $this->faker->paragraph(),
+		    ]);
+	    }
+	});
 
 	return $this;
     }
