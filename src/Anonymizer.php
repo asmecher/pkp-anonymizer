@@ -54,59 +54,61 @@ class Anonymizer {
             ->select('locale')->distinct()->pluck('locale', 'locale')->toArray();
         $localizedFakers = array_map(fn($locale) => Faker\Factory::create($locale), $locales);
 
-        foreach ($this->db->table('users AS u')->select('u.*')->get() as $user) {
-            // Determine a unique username and email for the user. If we hit a duplicate,
-            // try again.
-            while (true) {
-                try {
-                    $email = $this->faker->email();
-                    $username = strtok($email, '@');
+        $this->db->table('users')->select('*')->orderBy('user_id')->chunk(1000, function($users) use ($locales, $localizedFakers) {
+	    foreach ($users as $user) {
+                // Determine a unique username and email for the user. If we hit a duplicate,
+                // try again.
+                while (true) {
+                    try {
+                        $email = $this->faker->email();
+                        $username = strtok($email, '@');
 
-                    DB::table('users')->where('user_id', $user->user_id)->update([
-                        'email' => $email,
-                        'username' => $username,
-                        'password' => sha1($username . $username), // Set the password to the username via grandfathered sha1 encryption
-                    ]);
-                    break;
-                } catch (\Illuminate\Database\QueryException $e) {
-                    // If we had an error other than a duplicate, throw it again.
-                    if ($e->errorInfo[1] != 1062) throw $e;
+                        DB::table('users')->where('user_id', $user->user_id)->update([
+                            'email' => $email,
+                            'username' => $username,
+                            'password' => sha1($username . $username), // Set the password to the username via grandfathered sha1 encryption
+                        ]);
+                        break;
+                    } catch (\Illuminate\Database\QueryException $e) {
+                        // If we had an error other than a duplicate, throw it again.
+                        if ($e->errorInfo[1] != 1062) throw $e;
+                    }
                 }
-            }
 
-            foreach ($locales as $locale) {
-                DB::table('user_settings')
-                    ->where('user_id', $user->user_id)
-                    ->where('locale', $locale)
-                    ->where('setting_name', 'familyName')
-                    ->update(['setting_value' => $localizedFakers[$locale]->lastName()]);
-                DB::table('user_settings')
-                    ->where('user_id', $user->user_id)
-                    ->where('locale', $locale)
-                    ->where('setting_name', 'givenName')
-                    ->update(['setting_value' => $localizedFakers[$locale]->firstName()]);
-                DB::table('user_settings')
-                    ->where('user_id', $user->user_id)
-                    ->where('locale', $locale)
-                    ->where('setting_name', 'biography')
-                    ->update(['setting_value' => $localizedFakers[$locale]->paragraph()]);
-                DB::table('user_settings')
-                    ->where('user_id', $user->user_id)
-                    ->where('locale', $locale)
-                    ->where('setting_name', 'preferredPublicName')
-                    ->update(['setting_value' => $localizedFakers[$locale]->name()]);
-                DB::table('user_settings')
-                    ->where('user_id', $user->user_id)
-                    ->where('locale', $locale)
-                    ->where('setting_name', 'signature')
-                    ->update(['setting_value' => $localizedFakers[$locale]->sentence()]);
-                DB::table('user_settings')
-                    ->where('user_id', $user->user_id)
-                    ->where('locale', $locale)
-                    ->where('setting_name', 'orcid')
-                    ->update(['setting_value' => 'http://orcid.org/1234-5678-9012-3456']); // This is just about certainly invalid
-            }
-        }
+                foreach ($locales as $locale) {
+                    DB::table('user_settings')
+                        ->where('user_id', $user->user_id)
+                        ->where('locale', $locale)
+                        ->where('setting_name', 'familyName')
+                        ->update(['setting_value' => $localizedFakers[$locale]->lastName()]);
+                    DB::table('user_settings')
+                        ->where('user_id', $user->user_id)
+                        ->where('locale', $locale)
+                        ->where('setting_name', 'givenName')
+                        ->update(['setting_value' => $localizedFakers[$locale]->firstName()]);
+                    DB::table('user_settings')
+                        ->where('user_id', $user->user_id)
+                        ->where('locale', $locale)
+                        ->where('setting_name', 'biography')
+                        ->update(['setting_value' => $localizedFakers[$locale]->paragraph()]);
+                    DB::table('user_settings')
+                        ->where('user_id', $user->user_id)
+                        ->where('locale', $locale)
+                        ->where('setting_name', 'preferredPublicName')
+                        ->update(['setting_value' => $localizedFakers[$locale]->name()]);
+                    DB::table('user_settings')
+                        ->where('user_id', $user->user_id)
+                        ->where('locale', $locale)
+                        ->where('setting_name', 'signature')
+                        ->update(['setting_value' => $localizedFakers[$locale]->sentence()]);
+                    DB::table('user_settings')
+                        ->where('user_id', $user->user_id)
+                        ->where('locale', $locale)
+                        ->where('setting_name', 'orcid')
+                        ->update(['setting_value' => 'http://orcid.org/1234-5678-9012-3456']); // This is just about certainly invalid
+	        }
+	    }
+        });
         return $this;
     }
 
